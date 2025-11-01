@@ -1,0 +1,176 @@
+🏗️ OVERVIEW: Functional Relationships
+Domain	Key Entities	Relationships
+Cutting Operations	cutting_jobs, workers, job_assignments	Each cutting job can be assigned to one or more workers. Jobs reference inventory materials.
+Inventory	inventory_items, stock_movements, deliveries, suppliers	Deliveries increase stock; outgoing stock (e.g., cutting jobs or sales) decreases stock.
+Suppliers	suppliers, deliveries	Suppliers provide lumber and other materials.
+Workforce	workers, job_assignments	Workers perform cutting jobs.
+System Logging (optional)	audit_logs, users	Tracks actions (admin/staff users).
+🧩 ENTITY-BY-ENTITY BREAKDOWN
+1. inventory_items
+
+Stores all materials (lumber, panels, poles, etc.)
+
+Field	Type	Description
+inventory_id	INT, PK, AI	Unique inventory item
+name	VARCHAR(100)	e.g., Gemelina
+type	VARCHAR(50)	Lumber / Panel / Pole
+size	VARCHAR(50)	e.g., 2x2x8
+quantity	INT	Current stock count
+status	ENUM('In Stock','Low Stock','Out of Stock')	Auto-updated via triggers
+unit	VARCHAR(20)	pcs / cu.ft etc.
+created_at	DATETIME	
+updated_at	DATETIME	
+
+🔗 Relations:
+
+One-to-Many with stock_movements
+
+One-to-Many with cutting_jobs (the material used)
+
+One-to-Many with deliveries (incoming stock)
+
+2. suppliers
+
+Stores supplier details.
+
+Field	Type	Description
+supplier_id	INT, PK, AI	
+name	VARCHAR(100)	e.g., Mahayag Timber Corp.
+contact_person	VARCHAR(100)	
+address	VARCHAR(255)	
+email_or_phone	VARCHAR(100)	
+created_at	DATETIME	
+updated_at	DATETIME	
+
+🔗 Relations:
+
+One-to-Many with deliveries
+
+3. deliveries
+
+Logs every supplier delivery and what inventory it affects.
+
+Field	Type	Description
+delivery_id	INT, PK, AI	
+supplier_id	INT, FK → suppliers.supplier_id	
+inventory_id	INT, FK → inventory_items.inventory_id	Material delivered
+quantity	INT	Number of units delivered
+unit	VARCHAR(20)	pcs, cu.ft, etc.
+delivery_date	DATE	
+remarks	TEXT, nullable	
+created_at	DATETIME	
+
+🔗 Relations:
+
+Delivery updates inventory quantity.
+
+Tied to supplier and specific item.
+
+4. stock_movements
+
+Tracks stock in/out transactions — acts as audit trail for inventory.
+
+Field	Type	Description
+movement_id	INT, PK, AI	
+inventory_id	INT, FK → inventory_items.inventory_id	
+movement_type	ENUM('IN','OUT')	
+quantity	INT	
+reference_type	ENUM('delivery','cutting_job','manual_adjustment')	
+reference_id	INT	delivery_id / job_id / etc.
+remarks	TEXT, nullable	
+created_at	DATETIME	
+
+🔗 Relations:
+
+Central link between inventory and other domains.
+
+Used for monthly stock movement analytics.
+
+5. workers
+
+Details of workers under the lumber operations.
+
+Field	Type	Description
+worker_id	INT, PK, AI	
+full_name	VARCHAR(100)	
+age	INT	
+address	VARCHAR(255)	
+contract_no	VARCHAR(50)	
+status	ENUM('Active','Inactive')	
+created_at	DATETIME	
+updated_at	DATETIME	
+
+🔗 Relations:
+
+One-to-Many with job_assignments
+
+6. cutting_jobs
+
+Represents a single cutting operation (e.g., “Gemelina Planks”).
+
+Field	Type	Description
+job_id	INT, PK, AI	
+job_name	VARCHAR(100)	
+inventory_id	INT, FK → inventory_items.inventory_id	Material to cut
+quantity	INT	
+size	VARCHAR(50)	
+due_date	DATE	
+status	ENUM('Pending','In Progress','Completed')	
+created_at	DATETIME	
+updated_at	DATETIME	
+
+🔗 Relations:
+
+One-to-Many with job_assignments
+
+One-to-Many with stock_movements (as OUT)
+
+7. job_assignments
+
+Mapping between workers and cutting jobs.
+
+Field	Type	Description
+assignment_id	INT, PK, AI	
+job_id	INT, FK → cutting_jobs.job_id	
+worker_id	INT, FK → workers.worker_id	
+assigned_by	INT, FK → users.user_id	admin who assigned
+remarks	TEXT	
+assigned_date	DATETIME	
+status	ENUM('Assigned','Ongoing','Completed')	
+completion_date	DATE, nullable	
+
+🔗 Relations:
+
+Many-to-One → cutting_jobs
+
+Many-to-One → workers
+
+Many-to-One → users (admin/staff assigning)
+
+8. users (System Accounts)
+
+For login, admin, and permissions (already exists if you have a global user/session system).
+
+Field	Type	Description
+user_id	INT, PK, AI	
+username	VARCHAR(50)	
+password	VARCHAR(255)	
+role	ENUM('Admin','Staff','Worker')	
+created_at	DATETIME	
+9. audit_logs (Optional, for future expansion)
+
+Tracks user/system actions.
+
+Field	Type	Description
+log_id	INT, PK, AI	
+user_id	INT, FK → users.user_id	
+action	VARCHAR(255)	
+reference_type	VARCHAR(50)	e.g. "cutting_job"
+reference_id	INT	
+ip_address	VARCHAR(45)	
+created_at	DATETIME	
+🧠 NORMALIZATION SUMMARY (3NF)
+Normal Form	How it’s satisfied
+1NF	All tables have atomic values, no repeating groups (✓)
+2NF	No partial dependency — each non-key depends on full PK (✓)
+3NF	No transitive dependencies — e.g., supplier contact info stays in suppliers, not in deliveries (✓)

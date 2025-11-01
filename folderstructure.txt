@@ -1,0 +1,47 @@
+/admin/
+│
+├── /functions/          → Core backend logic (PHP function files)
+│     ├── add_inventory.php
+│     ├── update_inventory.php
+│     ├── manage_suppliers.php
+│     ├── manage_workers.php
+│     ├── manage_cutting_jobs.php
+│     ├── generate_reports.php
+│     ├── notifications.php
+│     ├── session_verifier.php
+│     └── logout.php
+│
+├── /pages/              → Admin & staff dashboard pages
+│     ├── dashboard.php
+│     ├── inventory.php
+│     ├── suppliers.php
+│     ├── workers.php
+│     ├── cutting_jobs.php
+│     ├── reports.php
+│     └── notifications.php
+│
+├── /partials/           → UI layout fragments
+│     ├── header.php
+│     ├── sidebar.php
+│     └── footer.php
+│
+├── /pictures/           → Static image assets (logos, backgrounds, icons)
+│     ├── logo.png
+│     ├── banner.jpg
+│     └── wood_samples/
+│
+├── /config/             → Configuration files
+│     └── db_connection.php
+│
+├── /lib/                → Shared libraries and helper utilities
+│     └── functions.php
+│
+├── /vendor/             → Third-party dependencies installed via Composer
+│     ├── autoload.php
+│     ├── phpmailer/
+│     ├── dompdf/
+│     └── semaphore_sms/
+│
+├── admin.php            → Admin login page (authentication entry point)
+├── index.php            → Public landing page (company info & logs)
+└── README.txt           → System documentation or setup guide

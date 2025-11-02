@@ -75,15 +75,37 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
 
-        /* SVG logo container */
+        /* Circle logo container */
         .brand .logo-wrap {
-            width:72px;
-            height:72px;
+            width:100px;
+            height:100px;
             display:flex;
             align-items:center;
             justify-content:center;
             background: rgba(255,255,255,0.06);
-            border-radius:12px;
+            border-radius:50%;
+            overflow:hidden;
+            border:2px solid rgba(255,255,255,0.08);
+            transition: transform 0.3s ease;
+            margin-bottom:12px;
+        }
+
+        .brand:hover .logo-wrap {
+            transform: scale(1.08);
+        }
+
+        /* Logo image */
+        .circle-logo {
+            width:120%;
+            height:120%;
+            object-fit:cover;
+            border-radius:50%;
+        }
+
+        /* Auto shrink when collapsed */
+        #sidebar.collapsed .brand .logo-wrap {
+            width:50px;
+            height:50px;
         }
 
         .brand h5 {
@@ -115,7 +137,6 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
             position: relative;
         }
 
-        /* hover scale (smooth) */
         .nav .nav-link:hover {
             transform: scale(1.03);
             background-color: rgba(255,255,255,0.04);
@@ -123,18 +144,16 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
             text-decoration: none;
         }
 
-        /* active: border-right white and stronger background */
         .nav .nav-link.active {
             background-color: rgba(255,255,255,0.06);
             color: #fff;
             border-left: 6px solid var(--sidebar-accent);
-            padding-left: calc(.9rem - 4px); /* keep spacing visually consistent when border added */
+            padding-left: calc(.9rem - 4px);
         }
 
-        /* icon sizing */
         .nav .nav-link i { font-size: 1.1rem; min-width: 22px; text-align:center; }
 
-        /* user area above logout */
+        /* user area */
         .sidebar .user-block {
             margin-top: 1rem;
             padding: .6rem;
@@ -207,23 +226,14 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
     <div id="sidebar" class="sidebar" role="navigation" aria-label="Main navigation">
         <div class="brand" id="sidebarToggle" title="Toggle sidebar">
             <div class="logo-wrap" aria-hidden="true">
-                <!-- Simple traced SVG logo - replace path if you want a custom trace -->
-                <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <defs>
-                        <linearGradient id="g1" x1="0" x2="1">
-                            <stop offset="0" stop-color="#66c7a1"/>
-                            <stop offset="1" stop-color="#1f7a63"/>
-                        </linearGradient>
-                    </defs>
-                    <!-- stylized log / tree mark -->
-                    <rect x="8" y="36" width="48" height="14" rx="3" fill="url(#g1)"/>
-                    <path d="M32 8c6 8 10 12 10 18 0 4-3 6-6 6H28c-3 0-6-2-6-6 0-6 4-10 10-18z" fill="#ffffff" opacity="0.95"/>
-                    <circle cx="32" cy="30" r="2.2" fill="#fff" opacity="0.08"/>
-                </svg>
+                <img src="<?php echo $base; ?>pictures/logo1.png" alt="Logo" class="circle-logo">
+
             </div>
 
-            <h5>Lumber Operation<br><strong style="font-weight:800;">Management System</strong></h5>
-            <p style="margin-top:4px; margin-bottom:0; font-size:12px; color: rgba(255,255,255,0.8);">Mahayag, Zamboanga del Sur</p>
+            <h5><strong style="font-weight:800; font-size:16px; margin-top: 4px;">LUMBER OPERATION<br>MANAGEMENT SYSTEM</strong></h5>
+            <p style="margin-top:-1px; margin-bottom:0; font-size:15px; color: rgba(255,255,255,0.8);">
+                Mahayag, Zamboanga del Sur
+            </p>
         </div>
 
         <ul class="nav nav-pills flex-column mb-auto gap-2" role="menu" aria-label="Sidebar">
@@ -261,18 +271,8 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
                     <span class="sidebar-text">Cutting Jobs</span>
                 </a>
             </li>
-
-            <!-- <li role="none">
-                <a role="menuitem" href="<?php echo $base; ?>index.php?page=reports" class="nav-link <?php echo active('reports', $current); ?>">
-                    <i class="bi bi-graph-up" aria-hidden="true"></i>
-                    <span class="sidebar-text">Reports</span>
-                </a>
-            </li> -->
-
-            <!-- Notifications removed as requested -->
         </ul>
 
-        <!-- user block + logout + dark toggle -->
         <div class="user-block">
             <div class="name"><?php echo $displayName; ?></div>
             <div class="actions">
@@ -288,16 +288,16 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
                 </button>
             </div>
         </div>
-
     </div>
 
     <!-- TOPBAR -->
     <div class="topbar" role="banner">
         <div class="d-flex align-items-center gap-3">
-            <button id="menuBtn" class="btn btn-sm btn-light d-lg-none" aria-label="Open menu"><i class="bi bi-list"></i></button>
+            <button id="menuBtn" class="btn btn-sm btn-light d-lg-none" aria-label="Open menu">
+                <i class="bi bi-list"></i>
+            </button>
             <div class="welcome">Welcome, <strong><?php echo $displayName; ?></strong></div>
         </div>
-        <!-- profile icon removed as requested -->
     </div>
 
     <!-- CONTENT WRAPPER -->
@@ -305,28 +305,23 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
 
 <script>
 (function(){
-    // Sidebar toggle (desktop collapse)
     const sidebar = document.getElementById('sidebar');
     const toggle = document.getElementById('sidebarToggle');
     const menuBtn = document.getElementById('menuBtn');
 
     toggle?.addEventListener('click', () => {
         sidebar.classList.toggle('collapsed');
-        // persist collapsed state
         localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
     });
 
-    // mobile menu toggle
     menuBtn?.addEventListener('click', () => {
         sidebar.classList.toggle('show');
     });
 
-    // restore sidebar state
     if (localStorage.getItem('sidebar-collapsed') === 'true') {
         sidebar.classList.add('collapsed');
     }
 
-    // Dark mode toggle
     const darkToggle = document.getElementById('darkToggle');
     const darkIcon = document.getElementById('darkIcon');
     const darkLabel = document.getElementById('darkLabel');
@@ -345,7 +340,6 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
         }
     }
 
-    // initialize from storage
     const stored = localStorage.getItem('mahayag-dark');
     applyDark(stored === '1');
 
@@ -355,7 +349,6 @@ $displayName = htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username'] ?
         applyDark(isDark);
     });
 
-    // keyboard accessibility: toggle with D
     document.addEventListener('keydown', (e) => {
         if (e.key.toLowerCase() === 'd' && (e.ctrlKey || e.metaKey)) {
             darkToggle.click();

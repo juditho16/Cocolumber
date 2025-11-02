@@ -1,40 +1,39 @@
 /admin/
 │
 ├── /functions/          → Core backend logic (PHP function files)
-│     ├── add_inventory.php
-│     ├── update_inventory.php
-│     ├── manage_suppliers.php
-│     ├── manage_workers.php
-│     ├── manage_cutting_jobs.php
-│     ├── generate_reports.php
-│     ├── notifications.php
+│     ├── global_get.php
+│     ├── inventory_add.php
+│     ├── invenotry_delete.php
+│     ├── inventory_update.php
+│     ├── supplier_add.php
+│     ├── supplier_update.php 
+│     ├── supplier_delete.php 
+│     ├── delivery_add.php
 │     ├── session_verifier.php
 │     └── logout.php
 │
 ├── /pages/              → Admin & staff dashboard pages
+│     ├── cutting_jobs.php
 │     ├── dashboard.php
 │     ├── inventory.php
 │     ├── suppliers.php
-│     ├── workers.php
-│     ├── cutting_jobs.php
-│     ├── reports.php
-│     └── notifications.php
+│     └── workers.php
 │
 ├── /partials/           → UI layout fragments
+│     ├── footer.php
 │     ├── header.php
-│     ├── sidebar.php
-│     └── footer.php
+│     ├── suppliers_modal.php 
+│     └── inventory_modal.php
 │
 ├── /pictures/           → Static image assets (logos, backgrounds, icons)
-│     ├── logo.png
-│     ├── banner.jpg
-│     └── wood_samples/
+│     └── logo1.png
 │
 ├── /config/             → Configuration files
+│     ├── constants.php
 │     └── db_connection.php
 │
-├── /lib/                → Shared libraries and helper utilities
-│     └── functions.php
+├── /lib/                
+│     └── 
 │
 ├── /vendor/             → Third-party dependencies installed via Composer
 │     ├── autoload.php

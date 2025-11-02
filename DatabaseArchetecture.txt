@@ -13,7 +13,7 @@ Stores all materials (lumber, panels, poles, etc.)
 Field	Type	Description
 inventory_id	INT, PK, AI	Unique inventory item
 name	VARCHAR(100)	e.g., Gemelina
-type	VARCHAR(50)	Lumber / Panel / Pole
+type	VARCHAR(50)	Lumber / Panel / Paole
 size	VARCHAR(50)	e.g., 2x2x8
 quantity	INT	Current stock count
 status	ENUM('In Stock','Low Stock','Out of Stock')	Auto-updated via triggers
@@ -105,10 +105,9 @@ updated_at	DATETIME
 One-to-Many with job_assignments
 
 6. cutting_jobs
-
 Represents a single cutting operation (e.g., “Gemelina Planks”).
-
 Field	Type	Description
+
 job_id	INT, PK, AI	
 job_name	VARCHAR(100)	
 inventory_id	INT, FK → inventory_items.inventory_id	Material to cut
@@ -174,3 +173,97 @@ Normal Form	How it’s satisfied
 1NF	All tables have atomic values, no repeating groups (✓)
 2NF	No partial dependency — each non-key depends on full PK (✓)
 3NF	No transitive dependencies — e.g., supplier contact info stays in suppliers, not in deliveries (✓)
+
+
+---- RELATIONSHIP OVERVIEW (ERD Description) ----------------
+suppliers (1)───(∞) deliveries (∞)───(1) inventory_items
+                                      │
+                                      └───(∞) stock_movements
+inventory_items (1)───(∞) cutting_jobs (1)───(∞) job_assignments (∞)───(1) workers
+users (1)───(∞) job_assignments
+
+
+
+
+
+CREATE TABLE inventory_items (
+  inventory_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  type VARCHAR(50),
+  size VARCHAR(50),
+  quantity INT DEFAULT 0,
+  unit VARCHAR(20),
+  status ENUM('In Stock','Low Stock','Out of Stock') DEFAULT 'In Stock',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE suppliers (
+  supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  contact_person VARCHAR(100),
+  address VARCHAR(255),
+  email_or_phone VARCHAR(100),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE deliveries (
+  delivery_id INT AUTO_INCREMENT PRIMARY KEY,
+  supplier_id INT,
+  inventory_id INT,
+  quantity INT,
+  unit VARCHAR(20),
+  delivery_date DATE,
+  remarks TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id),
+  FOREIGN KEY (inventory_id) REFERENCES inventory_items(inventory_id)
+);
+
+CREATE TABLE stock_movements (
+  movement_id INT AUTO_INCREMENT PRIMARY KEY,
+  inventory_id INT,
+  movement_type ENUM('IN','OUT'),
+  quantity INT,
+  reference_type ENUM('delivery','cutting_job','manual_adjustment'),
+  reference_id INT,
+  remarks TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (inventory_id) REFERENCES inventory_items(inventory_id)
+);
+
+CREATE TABLE workers (
+  worker_id INT AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(100),
+  age INT,
+  address VARCHAR(255),
+  contract_no VARCHAR(50),
+  status ENUM('Active','Inactive') DEFAULT 'Active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cutting_jobs (
+  job_id INT AUTO_INCREMENT PRIMARY KEY,
+  job_name VARCHAR(100),
+  inventory_id INT,
+  size VARCHAR(50),
+  quantity INT,
+  due_date DATE,
+  status ENUM('Pending','In Progress','Completed') DEFAULT 'Pending',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (inventory_id) REFERENCES inventory_items(inventory_id)
+);
+
+CREATE TABLE job_assignments (
+  assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+  job_id INT,
+  worker_id INT,
+  assigned_by INT,
+  remarks TEXT,
+  assigned_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('Assigned','Ongoing','Completed') DEFAULT 'Assigned',
+  completion_date DATE NULL,
+  FOREIGN KEY (job_id) REFERENCES cutting_jobs(job_id),
+  FOREIGN KEY (worker_id) REFERENCES workers(worker_id)
+);

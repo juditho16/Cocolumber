@@ -77,10 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="container login-container">
     <div class="card p-4">
         <div class="text-center mb-4">
-            <img src="admin/pictures/logo.jpg" alt="Logo" width="70" class="mb-2">
-            <h4 class="fw-semibold text-dark">Mahayag Lumber Admin</h4>
-            <p class="text-muted small">Sign in to manage inventory and operations</p>
-        </div>
+  <img src="admin/pictures/logo1.png" 
+       alt="Logo" 
+       width="150" 
+       class="mb-2 rounded-circle border shadow-sm"
+       style="object-fit: cover; height: 150px; width: 150px;">
+  <h4 class="fw-semibold text-dark">Mahayag Lumber Admin</h4>
+  <p class="text-muted small">Sign in to manage inventory and operations</p>
+</div>
+
 
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger text-center"><?= htmlspecialchars($error) ?></div>
